@@ -1,0 +1,40 @@
+{
+  "name": "@spoutmq/example-frontend",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@spoutmq/client": "0.0.0",
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1",
+    "react-scripts": "3.1.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "dev": "npm start",
+    "build": "react-scripts build",
+    "test": "react-scripts test"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "proxy": "http://localhost:3001",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.9",
+    "@types/react": "^16.9.4",
+    "@types/react-dom": "^16.9.1",
+    "typescript": "^3.6.3"
+  }
+}

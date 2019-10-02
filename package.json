@@ -1,0 +1,22 @@
+{
+  "name": "spoutmq",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run clean && jest --coverage",
+    "test:watch": "npm run clean && jest --watch",
+    "dev": "concurrently 'cd packages/example-backend && npm run dev' 'cd packages/example-frontend && npm run dev'",
+    "build": "lerna run tsc",
+    "clean": "lerna run clean",
+    "publish": "lerna run tsc && lerna publish && npm run clean",
+    "postinstall": "lerna bootstrap"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^4.1.2",
+    "lerna": "^3.16.4",
+    "typescript": "^3.6.3"
+  }
+}

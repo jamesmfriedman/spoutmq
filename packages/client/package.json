@@ -1,0 +1,27 @@
+{
+  "name": "@spoutmq/client",
+  "version": "0.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "@types",
+    "lib"
+  ],
+  "scripts": {
+    "clean": "rm -rf ./lib",
+    "tsc": "npm run clean && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "socket.io-client": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/socket.io-client": "^1.4.32"
+  }
+}
