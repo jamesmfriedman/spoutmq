@@ -8,6 +8,7 @@
     "sourceMap": true,
     "outDir": "lib",
     "baseUrl": "./",
+    "preserveWatchOutput": true,
     "paths": {
       "@common/*": ["src/common/*"],
       "@controller/*": ["src/controller/*"],

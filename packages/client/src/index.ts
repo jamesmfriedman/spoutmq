@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 
 interface ConnectOptions {
   url: string;
-  token: string;
+  userId: string;
   connectionOptions?: SocketIOClient.ConnectOpts;
 }
 
@@ -10,16 +10,34 @@ interface SubscribeOptions {
   pattern: string;
 }
 
-const subscribe = ({ url, connectionOptions = {} }: ConnectOptions) => (
+interface Subscriptions {
+  [key: string]: SocketIOClient.Socket;
+}
+
+const subscribe = ({
+  url,
+  connectionOptions = {},
+  subscriptions
+}: ConnectOptions & { subscriptions: Subscriptions }) => (
   ...args: SubscribeOptions[]
 ) => {
   for (const { pattern } of args) {
+    if (subscriptions[pattern]) {
+      console.log('Already subscribed to.', pattern);
+      continue;
+    }
+
+    if (!pattern.trim()) {
+      console.log('No valid pattern to subscribe to.');
+      continue;
+    }
+
     const safePattern = encodeURIComponent(pattern);
     console.log('Subscribing to topic', pattern);
     const socket = io(`${url}/${safePattern}`, {
       ...connectionOptions,
       query: {
-        ...connectionOptions,
+        ...connectionOptions.query,
         pattern: safePattern
       }
     });
@@ -27,42 +45,83 @@ const subscribe = ({ url, connectionOptions = {} }: ConnectOptions) => (
     socket.on('connect', function() {
       console.log('CONNECT');
     });
-    socket.on('event', function(data: any) {
-      console.log('EVENT', data);
+    socket.on('data', function(data: any) {
+      console.log('Received', data);
     });
 
-    socket.emit('event', { data: 'from client' + pattern });
+    subscriptions[pattern] = socket;
+    return socket;
   }
+};
+
+const unsubscribe = ({ subscriptions }: { subscriptions: Subscriptions }) => (
+  ...args: SubscribeOptions[]
+) => {
+  for (const { pattern } of args) {
+    if (subscriptions[pattern]) {
+      console.log('Removing subscription for', pattern);
+      subscriptions[pattern].disconnect();
+      delete subscriptions[pattern];
+    }
+  }
+};
+
+const unsubscribeAll = ({
+  subscriptions
+}: {
+  subscriptions: Subscriptions;
+}) => () => {
+  for (const key in subscriptions) {
+    subscriptions[key].close();
+  }
+};
+
+const publish = ({ socket }: { socket: SocketIOClient.Socket }) => ({
+  key,
+  data
+}: {
+  key: string;
+  data: any;
+}) => {
+  console.log('Publishing', data);
+  socket.emit('publish', key, data);
 };
 
 export const connect = ({
   url,
-  token,
+  userId,
   connectionOptions: _connectionOptions = {}
 }: ConnectOptions) => {
   const connectionOptions = {
     ..._connectionOptions,
     query: {
       ..._connectionOptions.query,
-      token
+      userId
     }
   };
 
-  // const socket = io(url, connectionOptions);
+  const subscriptions = {};
+  const boundSubscribe = subscribe({
+    url,
+    userId,
+    connectionOptions,
+    subscriptions
+  });
 
-  // socket.on('connect', function() {
-  //   console.log('CONNECT');
-  // });
-  // socket.on('event', function(data: any) {
-  //   console.log('EVENT', data);
-  // });
-  // socket.on('disconnect', function() {
-  //   console.log('DISCONNECT');
-  // });
-
-  // socket.emit('event', { data: 'from client' });
+  // subscribe to users namespace
+  const socket = boundSubscribe({ pattern: `spoutmqUser.${userId}.#` });
+  socket.on('namespaceCreated', (namespace: string) => {
+    boundSubscribe({ pattern: namespace });
+  });
 
   return {
-    subscribe: subscribe({ url, token, connectionOptions })
+    publish: publish({ socket }),
+    subscribe: (...args: SubscribeOptions[]) => {
+      for (const { pattern } of args) {
+        socket.emit('namespace', pattern);
+      }
+    },
+    unsubscribe: unsubscribe({ subscriptions }),
+    unsubscribeAll: unsubscribeAll({ subscriptions })
   };
 };

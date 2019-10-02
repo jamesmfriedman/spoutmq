@@ -1,23 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect } from 'react';
 import './app.css';
+import { spoutClient } from './spout';
 
 function App() {
+  const subscribe = (pattern: string) => {
+    spoutClient.subscribe({ pattern });
+  };
+
+  const unsubscribe = (pattern: string) => {
+    spoutClient.unsubscribe({ pattern });
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      subscribe('user.events.hello');
+    });
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+        <label>Subscribe</label>
+        <input
+          onBlur={evt => {
+            subscribe(evt.currentTarget.value);
+          }}
+        />
+
+        <label>Unsubscribe</label>
+        <input
+          onBlur={evt => {
+            unsubscribe(evt.currentTarget.value);
+          }}
+        />
+
+        <label>Message</label>
+        <input id="input" />
+
+        <button
+          onClick={() =>
+            spoutClient.publish({
+              key: 'user.events.hello',
+              // @ts-ignore
+              data: document.getElementById('input').value
+            })
+          }
         >
-          Learn React
-        </a>
+          Publish
+        </button>
       </header>
     </div>
   );

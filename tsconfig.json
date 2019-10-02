@@ -6,7 +6,8 @@
     "target": "es6",
     "noImplicitAny": true,
     "sourceMap": true,
-    "lib": ["esnext"]
+    "lib": ["esnext"],
+    "preserveWatchOutput": true
   },
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

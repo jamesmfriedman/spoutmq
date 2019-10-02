@@ -6,8 +6,9 @@
   "scripts": {
     "test": "npm run clean && jest --coverage",
     "test:watch": "npm run clean && jest --watch",
-    "dev": "concurrently 'cd packages/example-backend && npm run dev' 'cd packages/example-frontend && npm run dev'",
-    "build": "lerna run tsc",
+    "dev": "concurrently 'npm run build:watch' 'cd packages/example-backend && npm run dev' 'cd packages/example-frontend && npm run dev'",
+    "build": "lerna run build",
+    "build:watch": "lerna run --parallel build:watch",
     "clean": "lerna run clean",
     "publish": "lerna run tsc && lerna publish && npm run clean",
     "postinstall": "lerna bootstrap"
